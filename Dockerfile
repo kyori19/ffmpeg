@@ -1,3 +1,4 @@
+FROM kyori/avisynthplus-alpine:latest AS avisynthplus
 FROM kyori/aom-alpine:latest AS aom
 FROM kyori/libass-alpine:latest AS libass
 
@@ -10,16 +11,11 @@ ENV VERSION=${version} \
   PREFIX=/tmp/output \
   PKG_CONFIG_PATH=/tmp/output/lib/pkgconfig:/tmp/output/lib64/pkgconfig
 
+COPY --from=avisynthplus /output/ /tmp/output/
 COPY --from=aom /output/ /tmp/output/
 COPY --from=libass /output/ /tmp/output/
 
 RUN apk add --no-cache ${DEV_PKGS} libgomp libstdc++ &&\
-  # AviSynthPlus
-  git clone --recurse-submodules https://github.com/AviSynth/AviSynthPlus.git /tmp/AviSynthPlus -b v3.7.0 --depth 1 &&\
-  mkdir /tmp/AviSynthPlus/avisynth-build &&\
-  cd /tmp/AviSynthPlus/avisynth-build &&\
-  cmake ../ -DCMAKE_INSTALL_PREFIX=${PREFIX} &&\
-  make -j$(nproc) install &&\
   # fdk-aac
   git clone https://github.com/mstorsjo/fdk-aac.git /tmp/fdk-aac -b v2.0.1 --depth 1 &&\
   cd /tmp/fdk-aac &&\
