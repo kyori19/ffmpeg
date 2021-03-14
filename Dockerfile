@@ -42,7 +42,7 @@ RUN apk add --no-cache ${DEV_PKGS} libgomp libstdc++ &&\
   make -j$(nproc) install &&\
   # openjpeg
   git clone https://github.com/uclouvain/openjpeg.git /tmp/openjpeg -b v2.4.0 --depth 1 &&\
-  mkdir \p /tmp/openjpeg/build &&\
+  mkdir -p /tmp/openjpeg/build &&\
   cd /tmp/openjpeg/build &&\
   cmake ../ -DCMAKE_INSTALL_PREFIX=${PREFIX} -DCMAKE_BUILD_TYPE=Release &&\
   make -j$(nproc) install &&\
