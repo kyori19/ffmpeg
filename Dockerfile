@@ -142,8 +142,11 @@ RUN apk add --no-cache ${DEV_PKGS} libgomp libstdc++ &&\
   make -j$(nproc) install &&\
   make distclean &&\
   mkdir -p /output/lib &&\
-  LD_LIBRARY_PATH=${PREFIX}/lib:${PREFIX}/lib64 ldd ${PREFIX}/bin/ffmpeg | cut -d ' ' -f 3 | strings | xargs -I R cp R /output/lib &&\
-  for lib in /output/lib/*; do strip --strip-all $lib; done &&\
+  mkdir -p /output/lib64 &&\
+  LD_LIBRARY_PATH=${PREFIX}/lib:${PREFIX}/lib64 ldd ${PREFIX}/bin/ffmpeg | cut -d ' ' -f 3 | strings | xargs -I {} sh -c 'cp -a ${0%%.so.*}* /output/$(echo $0 | sed -r "s/^.*\/(lib(64)?)\/.*$/\1/g")' {} &&\
+  for lib in /output/lib/*; do if [ -L $lib ]; then strip --strip-all $lib; fi done &&\
+  cp -r ${PREFIX}/lib/pkgconfig /output/lib/pkgconfig &&\
+  cp -r ${PREFIX}/lib64/pkgconfig /output/lib64/pkgconfig &&\
   cp -r ${PREFIX}/bin /output/bin &&\
   cp -r ${PREFIX}/share /output/share &&\
   cp -r ${PREFIX}/include /output/include &&\
